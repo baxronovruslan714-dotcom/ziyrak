@@ -11,13 +11,13 @@
 <div id="msgs"></div>
 <div id="inp-area"><div id="stat"></div><div class="row"><button id="vbtn" onclick="toggleVoice()">🎤</button><input id="inp" placeholder="Yozing..." onkeydown="if(event.key==='Enter')send()"><button id="sbtn" onclick="send()">↑</button></div></div>
 <script>
-const KEY="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";
+const KEY="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";
 const MODES={
   chat:{e:"🤖",s:"Sen Ziyrak — aqlli o'zbek AI assistanti. Qisqa va do'stona javob ber."},
-  jaydari:{e:"😂",s:"Sen hazilkash jaydari o'zbek yigitisan. 'Bro','aka','ukam' de, ko'p hazil qil, 'voy-bo'y','iye' ishlatib gapir."},
-  english:{e:"🇬🇧",s:"You are a friendly English teacher for Uzbek speakers. Translate to English, explain grammar, teach vocabulary."},
-  russian:{e:"🇷🇺",s:"Siz rus tili o'qituvchisisiz. O'zbekchani ruschaga tarjima qiling, grammatika tushuntiring."},
-  arabic:{e:"🇸🇦",s:"Siz arab tili o'qituvchisisiz. Arab alifbosi va asosiy so'zlar o'rgating."},
+  jaydari:{e:"😂",s:"Sen hazilkash jaydari o'zbek yigitisan. 'Bro','aka','ukam' de, ko'p hazil qil."},
+  english:{e:"🇬🇧",s:"You are a friendly English teacher for Uzbek speakers. Translate, explain grammar, teach vocabulary."},
+  russian:{e:"🇷🇺",s:"Siz rus tili o'qituvchisisiz. Tarjima qiling, grammatika tushuntiring."},
+  arabic:{e:"🇸🇦",s:"Siz arab tili o'qituvchisisiz. Arab alifbosi va so'zlar o'rgating."},
   cmd:{e:"⚡",s:`Buyruqlar uchun FAQAT JSON qaytar: "YouTube dan X top"->{"action":"youtube","q":"X"} "Instagram och"->{"action":"instagram"} "Telegram och"->{"action":"telegram"} "Google Maps da X"->{"action":"maps","q":"X"} "Google da X"->{"action":"google","q":"X"} Boshqa savollarga o'zbekcha javob ber.`}
 };
 let mode="chat",lis=false,rec=null;
@@ -38,36 +38,4 @@ function addMsg(r,t){
 function runCmd(json){
   try{
     const j=JSON.parse(json);
-    const u={youtube:`https://youtube.com/results?search_query=${encodeURIComponent(j.q||'')}`,instagram:'https://instagram.com',telegram:'https://t.me',maps:`https://maps.google.com/?q=${encodeURIComponent(j.q||'')}`,google:`https://google.com/search?q=${encodeURIComponent(j.q||'')}`};
-    if(u[j.action]){window.open(u[j.action],'_blank');addMsg('ai','✅ Bajarildi!');}else addMsg('ai',json);
-  }catch(e){addMsg('ai',json);}
-}
-async function sendMsg(txt){
-  const i=document.getElementById('inp');const t=txt||i.value.trim();if(!t)return;
-  i.value='';addMsg('user',t);document.getElementById('stat').textContent='⏳ Javob tayyorlanmoqda...';
-  try{
-    const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+KEY,'HTTP-Referer':'https://baxronovruslan714-dotcom.github.io','X-Title':'Ziyrak Pro'},
-      body:JSON.stringify({model:'meta-llama/llama-3.1-8b-instruct:free',messages:[{role:'system',content:MODES[mode].s},{role:'user',content:t}]})
-    });
-    const d=await r.json();
-    const rep=d.choices?.[0]?.message?.content||'Javob kelmadi';
-    if(mode==='cmd'&&rep.trim().startsWith('{'))runCmd(rep.trim());
-    else addMsg('ai',rep);
-    document.getElementById('stat').textContent='';
-  }catch(e){document.getElementById('stat').textContent='❌ Xato: '+e.message;}
-}
-function send(){sendMsg();}
-function toggleVoice(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert('Safari da ishlaydi');return;}
-  if(lis){rec&&rec.stop();return;}
-  rec=new SR();rec.lang=langs[mode]||'uz-UZ';
-  rec.onstart=()=>{lis=true;document.getElementById('vbtn').classList.add('lis');document.getElementById('vbtn').textContent='⏹';document.getElementById('stat').textContent='🎤 Gapiring...';};
-  rec.onresult=e=>{const t=Array.from(e.results).map(x=>x[0].transcript).join('');document.getElementById('inp').value=t;if(e.results[e.results.length-1].isFinal){rec.stop();setTimeout(()=>sendMsg(t),300);}};
-  rec.onerror=()=>{lis=false;document.getElementById('vbtn').classList.remove('lis');document.getElementById('vbtn').textContent='🎤';};
-  rec.onend=()=>{lis=false;document.getElementById('vbtn').classList.remove('lis');document.getElementById('vbtn').textContent='🎤';if(document.getElementById('stat').textContent==='🎤 Gapiring...')document.getElementById('stat').textContent='';};
-  rec.start();
-}
-setMode('chat',document.querySelector('.tab.on'));
-</script></body></html>
+    const u={youtube:`https://youtube.com/results?search_query=${encodeURIComponent(j.q||''
