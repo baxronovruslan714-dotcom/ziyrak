@@ -4,54 +4,34 @@
 <button class="tab on" onclick="setMode('chat',this)">💬 Suhbat</button>
 <button class="tab" onclick="setMode('jaydari',this)">😂 Jaydari</button>
 <button class="tab" onclick="setMode('english',this)">🇬🇧 Ingliz</button>
-<button class="tab" onclick="setMode('russian',this)">🇷🇺 Rus</button>
+<button class="tab" onclick="setMode('russian',this)">🇷 Rus</button>
 <button class="tab" onclick="setMode('arabic',this)">🇸🇦 Arab</button>
 <button class="tab" onclick="setMode('cmd',this)">⚡ Buyruq</button>
 </div>
 <div id="msgs"></div>
 <div id="inp-area"><div id="stat"></div><div class="row"><button id="vbtn" onclick="toggleVoice()">🎤</button><input id="inp" placeholder="Yozing..." onkeydown="if(event.key==='Enter')send()"><button id="sbtn" onclick="send()">↑</button></div></div>
 <script>
-const KEY="AIzaSyDWXqN9eoqhUhor0Ek4SuLTbBy6wTmA898";
-const PROXY="https://corsproxy.io/?";
-const API=`${PROXY}https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
+const KEY="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";
 const MODES={
   chat:{e:"🤖",s:"Sen Ziyrak — aqlli o'zbek AI assistanti. Qisqa va do'stona javob ber."},
   jaydari:{e:"😂",s:"Sen hazilkash jaydari o'zbek yigitisan. 'Bro','aka','ukam' de, ko'p hazil qil, 'voy-bo'y','iye' ishlatib gapir."},
   english:{e:"🇬🇧",s:"You are a friendly English teacher for Uzbek speakers. Translate to English, explain grammar, teach vocabulary."},
   russian:{e:"🇷🇺",s:"Siz rus tili o'qituvchisisiz. O'zbekchani ruschaga tarjima qiling, grammatika tushuntiring."},
   arabic:{e:"🇸🇦",s:"Siz arab tili o'qituvchisisiz. Arab alifbosi va asosiy so'zlar o'rgating."},
-  cmd:{e:"⚡",s:`Buyruqlar uchun FAQAT JSON qaytar:
-"YouTube dan X top"->{"action":"youtube","q":"X"}
-"Instagram och"->{"action":"instagram"}
-"Telegram och"->{"action":"telegram"}
-"Google Maps da X"->{"action":"maps","q":"X"}
-"Google da X"->{"action":"google","q":"X"}
-Boshqa savollarga o'zbekcha javob ber.`}
+  cmd:{e:"⚡",s:`Buyruqlar uchun FAQAT JSON qaytar: "YouTube dan X top"->{"action":"youtube","q":"X"} "Instagram och"->{"action":"instagram"} "Telegram och"->{"action":"telegram"} "Google Maps da X"->{"action":"maps","q":"X"} "Google da X"->{"action":"google","q":"X"} Boshqa savollarga o'zbekcha javob ber.`}
 };
 let mode="chat",lis=false,rec=null;
 const langs={english:"en-US",russian:"ru-RU",arabic:"ar-SA"};
 function setMode(m,btn){
-  mode=m;
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
-  btn.classList.add('on');
-  const c=document.getElementById('msgs');
-  c.innerHTML='';
-  if(m==="cmd"){
-    c.innerHTML=`<div class="chips">
-      <div class="chip" onclick="sendMsg('YouTube dan mashxur qoshiqlar top')">🎵 YouTube</div>
-      <div class="chip" onclick="sendMsg('Instagram och')">📸 Instagram</div>
-      <div class="chip" onclick="sendMsg('Telegram och')">✈️ Telegram</div>
-      <div class="chip" onclick="sendMsg('Google Maps da Toshkent')">🗺 Maps</div>
-      <div class="chip" onclick="sendMsg('Google da bugungi yangiliklar')">🔍 Google</div>
-    </div>`;
-  }
+  mode=m;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));btn.classList.add('on');
+  const c=document.getElementById('msgs');c.innerHTML='';
+  if(m==="cmd"){c.innerHTML=`<div class="chips"><div class="chip" onclick="sendMsg('YouTube dan mashxur qoshiqlar top')">🎵 YouTube</div><div class="chip" onclick="sendMsg('Instagram och')">📸 Instagram</div><div class="chip" onclick="sendMsg('Telegram och')">✈️ Telegram</div><div class="chip" onclick="sendMsg('Google Maps da Toshkent')">🗺 Maps</div><div class="chip" onclick="sendMsg('Google da bugungi yangiliklar')">🔍 Google</div></div>`;}
 }
 function clearChat(){document.getElementById('msgs').innerHTML='';}
 function addMsg(r,t){
   const c=document.getElementById('msgs');
-  const chips=c.querySelector('.chips');if(chips)chips.remove();
-  const d=document.createElement('div');
-  d.className='msg '+(r==='user'?'u':'a');
+  const ch=c.querySelector('.chips');if(ch)ch.remove();
+  const d=document.createElement('div');d.className='msg '+(r==='user'?'u':'a');
   d.innerHTML=`<div class="av">${r==='user'?'😊':MODES[mode].e}</div><div class="bub">${t.replace(/\n/g,'<br>')}</div>`;
   c.appendChild(d);c.scrollTop=c.scrollHeight;
 }
@@ -59,38 +39,30 @@ function runCmd(json){
   try{
     const j=JSON.parse(json);
     const u={youtube:`https://youtube.com/results?search_query=${encodeURIComponent(j.q||'')}`,instagram:'https://instagram.com',telegram:'https://t.me',maps:`https://maps.google.com/?q=${encodeURIComponent(j.q||'')}`,google:`https://google.com/search?q=${encodeURIComponent(j.q||'')}`};
-    const l={youtube:`🎵 YouTube ochildi!`,instagram:'📸 Instagram ochildi!',telegram:'✈️ Telegram ochildi!',maps:`🗺 Maps ochildi!`,google:`🔍 Google ochildi!`};
-    if(u[j.action]){window.open(u[j.action],'_blank');addMsg('ai',l[j.action]||'✅ Bajarildi!');}
-    else addMsg('ai',json);
+    if(u[j.action]){window.open(u[j.action],'_blank');addMsg('ai','✅ Bajarildi!');}else addMsg('ai',json);
   }catch(e){addMsg('ai',json);}
 }
 async function sendMsg(txt){
-  const i=document.getElementById('inp');
-  const t=txt||i.value.trim();
-  if(!t)return;
-  i.value='';
-  addMsg('user',t);
-  document.getElementById('stat').textContent='⏳ Javob tayyorlanmoqda...';
+  const i=document.getElementById('inp');const t=txt||i.value.trim();if(!t)return;
+  i.value='';addMsg('user',t);document.getElementById('stat').textContent='⏳ Javob tayyorlanmoqda...';
   try{
-    const r=await fetch(API,{
+    const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-requested-with':'XMLHttpRequest'},
-      body:JSON.stringify({contents:[{role:'user',parts:[{text:MODES[mode].s+'\n\nFoydalanuvchi: '+t}]}]})
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+KEY,'HTTP-Referer':'https://baxronovruslan714-dotcom.github.io','X-Title':'Ziyrak Pro'},
+      body:JSON.stringify({model:'meta-llama/llama-3.1-8b-instruct:free',messages:[{role:'system',content:MODES[mode].s},{role:'user',content:t}]})
     });
     const d=await r.json();
-    const rep=d.candidates?.[0]?.content?.parts?.[0]?.text||'Javob kelmadi';
+    const rep=d.choices?.[0]?.message?.content||'Javob kelmadi';
     if(mode==='cmd'&&rep.trim().startsWith('{'))runCmd(rep.trim());
     else addMsg('ai',rep);
     document.getElementById('stat').textContent='';
-  }catch(e){document.getElementById('stat').textContent='❌ '+e.message;}
+  }catch(e){document.getElementById('stat').textContent='❌ Xato: '+e.message;}
 }
 function send(){sendMsg();}
 function toggleVoice(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){alert('Safari da ishlaydi');return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert('Safari da ishlaydi');return;}
   if(lis){rec&&rec.stop();return;}
-  rec=new SR();
-  rec.lang=langs[mode]||'uz-UZ';
+  rec=new SR();rec.lang=langs[mode]||'uz-UZ';
   rec.onstart=()=>{lis=true;document.getElementById('vbtn').classList.add('lis');document.getElementById('vbtn').textContent='⏹';document.getElementById('stat').textContent='🎤 Gapiring...';};
   rec.onresult=e=>{const t=Array.from(e.results).map(x=>x[0].transcript).join('');document.getElementById('inp').value=t;if(e.results[e.results.length-1].isFinal){rec.stop();setTimeout(()=>sendMsg(t),300);}};
   rec.onerror=()=>{lis=false;document.getElementById('vbtn').classList.remove('lis');document.getElementById('vbtn').textContent='🎤';};
