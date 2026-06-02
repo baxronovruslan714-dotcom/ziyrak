@@ -1,1 +1,115 @@
-<!DOCTYPE html><html lang="uz"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><title>Ziyrak</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui;background:#050510;color:#e8e8ff;height:100dvh;display:flex;flex-direction:column}header{padding:16px;background:#0d0d20;border-bottom:1px solid #ffffff15;display:flex;justify-content:space-between;align-items:center}.logo{font-size:20px;font-weight:700;background:linear-gradient(90deg,#6c63ff,#ff6584);-webkit-background-clip:text;-webkit-text-fill-color:transparent}#msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}.msg{display:flex;gap:8px}.msg.u{flex-direction:row-reverse}.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;background:#13132a;border:1px solid #ffffff15}.msg.u .av{background:linear-gradient(135deg,#6c63ff,#ff6584)}.bub{padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.6;max-width:calc(100% - 46px);word-break:break-word}.msg.u .bub{background:linear-gradient(135deg,#2a1f6e,#1a1a4e);border-bottom-right-radius:3px}.msg.a .bub{background:#0f1f2e;border:1px solid #ffffff08;border-bottom-left-radius:3px}#inp-area{padding:12px 16px 24px;background:#050510;border-top:1px solid #ffffff10}.row{display:flex;gap:8px;align-items:center}#inp{flex:1;padding:12px 16px;background:#13132a;border:1px solid #ffffff15;border-radius:22px;color:#e8e8ff;font-size:14px;outline:none}#send{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#6c63ff,#ff6584);border:none;color:#fff;font-size:18px;cursor:pointer}#stat{font-size:11px;color:#43e97b;text-align:center;padding:4px 0;min-height:18px}</style></head><body><header><div class="logo">⚡ Ziyrak</div><span style="font-size:11px;color:#5a5a8a">AI Assistant</span></header><div id="msgs"><div style="text-align:center;padding:40px 20px"><div style="font-size:48px">🤖</div><div style="margin-top:12px;font-size:16px;color:#e8e8ff;font-weight:600">Ziyrak Pro</div><div style="margin-top:6px;font-size:13px;color:#5a5a8a">Salom! Savol bering yoki gapiring 🎤</div></div></div><div id="inp-area"><div id="stat"></div><div class="row"><button onclick="startVoice()" style="width:42px;height:42px;border-radius:50%;background:#13132a;border:1px solid #ffffff15;color:#e8e8ff;font-size:18px;cursor:pointer">🎤</button><input id="inp" placeholder="Yozing..." onkeydown="if(event.key==='Enter')send()"><button id="send" onclick="send()">↑</button></div></div><script>const KEY="AIzaSyDWXqN9eoqhUhor0Ek4SuLTbBy6wTmA898";async function send(){const i=document.getElementById('inp');const t=i.value.trim();if(!t)return;i.value='';addMsg('user',t);document.getElementById('stat').textContent='⏳ Javob tayyorlanmoqda...';try{const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts:[{text:"Sen Ziyrak — o'zbek AI assistanti. Qisqa va do'stona javob ber.\n\n"+t}]}]})});const d=await r.json();addMsg('ai',d.candidates?.[0]?.content?.parts?.[0]?.text||'Xato');document.getElementById('stat').textContent='';}catch(e){document.getElementById('stat').textContent='❌ Xato';}}function addMsg(r,t){const c=document.getElementById('msgs');const d=document.createElement('div');d.className='msg '+(r==='user'?'u':'a');d.innerHTML=`<div class="av">${r==='user'?'😊':'🤖'}</div><div class="bub">${t.replace(/\n/g,'<br>')}</div>`;c.appendChild(d);c.scrollTop=c.scrollHeight;}function startVoice(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert('Safari da ishlaydi');return;}const r=new SR();r.lang='uz-UZ';r.onresult=e=>{document.getElementById('inp').value=e.results[0][0].transcript;send();};r.start();document.getElementById('stat').textContent='🎤 Gapiring...';}</script></body></html>
+<!DOCTYPE html><html lang="uz"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><title>Ziyrak Pro</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui;background:#050510;color:#e8e8ff;height:100dvh;display:flex;flex-direction:column}header{padding:14px 16px;background:#0d0d20;border-bottom:1px solid #ffffff15;display:flex;justify-content:space-between;align-items:center}.logo{font-size:20px;font-weight:700;background:linear-gradient(90deg,#6c63ff,#ff6584);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.tabs{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#0a0a1a;scrollbar-width:none}.tab{flex-shrink:0;padding:6px 12px;border-radius:16px;font-size:11px;font-weight:600;border:1px solid #ffffff15;background:#13132a;color:#5a5a8a;cursor:pointer}.tab.on{background:#6c63ff;border-color:#6c63ff;color:#fff}#msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}.msg{display:flex;gap:8px}.msg.u{flex-direction:row-reverse}.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:#13132a;border:1px solid #ffffff15}.msg.u .av{background:linear-gradient(135deg,#6c63ff,#ff6584)}.bub{padding:10px 13px;border-radius:16px;font-size:13px;line-height:1.6;max-width:calc(100% - 44px);word-break:break-word}.msg.u .bub{background:linear-gradient(135deg,#2a1f6e,#1a1a4e);border-bottom-right-radius:3px}.msg.a .bub{background:#0f1f2e;border:1px solid #ffffff08;border-bottom-left-radius:3px}.chips{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px}.chip{padding:6px 12px;border-radius:14px;font-size:11px;border:1px solid #ffffff15;background:#13132a;color:#43e97b;cursor:pointer}#inp-area{padding:10px 14px 20px;background:#050510;border-top:1px solid #ffffff10}#stat{font-size:11px;color:#43e97b;text-align:center;padding:2px 0 6px;min-height:16px}.row{display:flex;gap:7px;align-items:center}#vbtn{width:42px;height:42px;border-radius:50%;background:#13132a;border:1px solid #ffffff15;color:#e8e8ff;font-size:17px;cursor:pointer;flex-shrink:0}#vbtn.lis{background:linear-gradient(135deg,#ff6584,#ff4757);border:none}#inp{flex:1;padding:11px 15px;background:#13132a;border:1px solid #ffffff15;border-radius:22px;color:#e8e8ff;font-size:13px;outline:none}#sbtn{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#6c63ff,#ff6584);border:none;color:#fff;font-size:16px;cursor:pointer}</style></head><body>
+<header><div class="logo">⚡ Ziyrak Pro</div><button onclick="clearChat()" style="background:#13132a;border:1px solid #ffffff15;color:#5a5a8a;font-size:11px;padding:5px 10px;border-radius:14px;cursor:pointer">🗑</button></header>
+<div class="tabs">
+<button class="tab on" onclick="setMode('chat',this)">💬 Suhbat</button>
+<button class="tab" onclick="setMode('jaydari',this)">😂 Jaydari</button>
+<button class="tab" onclick="setMode('english',this)">🇬🇧 Ingliz</button>
+<button class="tab" onclick="setMode('russian',this)">🇷🇺 Rus</button>
+<button class="tab" onclick="setMode('arabic',this)">🇸🇦 Arab</button>
+<button class="tab" onclick="setMode('cmd',this)">⚡ Buyruq</button>
+</div>
+<div id="msgs"></div>
+<div id="inp-area"><div id="stat"></div><div class="row"><button id="vbtn" onclick="toggleVoice()">🎤</button><input id="inp" placeholder="Yozing..." onkeydown="if(event.key==='Enter')send()"><button id="sbtn" onclick="send()">↑</button></div></div>
+<script>
+const KEY="AIzaSyDWXqN9eoqhUhor0Ek4SuLTbBy6wTmA898";
+const MODES={
+  chat:{e:"🤖",s:"Sen Ziyrak — aqlli o'zbek AI assistanti. Qisqa va do'stona javob ber."},
+  jaydari:{e:"😂",s:"Sen hazilkash jaydari o'zbek yigitisan. 'Bro','aka','ukam' de, ko'p hazil qil, 'voy-bo'y','iye' ishlatib gapir. Savollarga ham javob ber."},
+  english:{e:"🇬🇧",s:"You are a friendly English teacher for Uzbek speakers. Translate to English, explain grammar, teach vocabulary. Mix Uzbek and English."},
+  russian:{e:"🇷🇺",s:"Siz rus tili o'qituvchisisiz. O'zbekchani ruschaga tarjima qiling, grammatika tushuntiring. Ikki tilni aralashtiring."},
+  arabic:{e:"🇸🇦",s:"Siz arab tili o'qituvchisisiz. Arab alifbosi, asosiy so'zlar o'rgating. O'zbek tilida tushuntirib arab yozuvini ko'rsating."},
+  cmd:{e:"⚡",s:`Buyruqlar uchun FAQAT JSON qaytar:
+"YouTube dan X top"→{"action":"youtube","q":"X"}
+"Instagram och"→{"action":"instagram"}
+"Telegram och"→{"action":"telegram"}
+"Google Maps da X"→{"action":"maps","q":"X"}
+"Google da X"→{"action":"google","q":"X"}
+Boshqa savollarga o'zbekcha javob ber.`}
+};
+let mode="chat",lis=false,rec=null;
+const langs={english:"en-US",russian:"ru-RU",arabic:"ar-SA"};
+
+function setMode(m,btn){
+  mode=m;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  const c=document.getElementById('msgs');
+  c.innerHTML='';
+  if(m==="cmd"){
+    c.innerHTML=`<div class="chips">
+      <div class="chip" onclick="sendMsg('YouTube dan mashxur qoshiqlar top')">🎵 YouTube</div>
+      <div class="chip" onclick="sendMsg('Instagram och')">📸 Instagram</div>
+      <div class="chip" onclick="sendMsg('Telegram och')">✈️ Telegram</div>
+      <div class="chip" onclick="sendMsg('Google Maps da Toshkent')">🗺 Maps</div>
+      <div class="chip" onclick="sendMsg('Google da bugungi yangiliklar')">🔍 Google</div>
+    </div>`;
+  }
+}
+
+function clearChat(){document.getElementById('msgs').innerHTML='';}
+
+function addMsg(r,t){
+  const c=document.getElementById('msgs');
+  const chips=c.querySelector('.chips');
+  if(chips)chips.remove();
+  const d=document.createElement('div');
+  d.className='msg '+(r==='user'?'u':'a');
+  d.innerHTML=`<div class="av">${r==='user'?'😊':MODES[mode].e}</div><div class="bub">${t.replace(/\n/g,'<br>').replace(/&/g,'&amp;')}</div>`;
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+
+function runCmd(json){
+  try{
+    const j=JSON.parse(json);
+    const u={youtube:`https://youtube.com/results?search_query=${encodeURIComponent(j.q||'')}`,instagram:'https://instagram.com',telegram:'https://t.me',maps:`https://maps.google.com/?q=${encodeURIComponent(j.q||'')}`,google:`https://google.com/search?q=${encodeURIComponent(j.q||'')}`};
+    const l={youtube:`🎵 YouTube ochildi: "${j.q}"`,instagram:'📸 Instagram ochildi!',telegram:'✈️ Telegram ochildi!',maps:`🗺 Maps ochildi: "${j.q}"`,google:`🔍 Google: "${j.q}"`};
+    if(u[j.action]){window.open(u[j.action],'_blank');addMsg('ai',l[j.action]||'✅ Bajarildi!');}
+    else addMsg('ai',json);
+  }catch(e){addMsg('ai',json);}
+}
+
+async function sendMsg(txt){
+  const i=document.getElementById('inp');
+  const t=txt||i.value.trim();
+  if(!t)return;
+  i.value='';
+  addMsg('user',t);
+  document.getElementById('stat').textContent='⏳ Javob tayyorlanmoqda...';
+  try{
+    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({contents:[{role:'user',parts:[{text:MODES[mode].s+'\n\nFoydalanuvchi: '+t}]}]})
+    });
+    const d=await r.json();
+    const rep=d.candidates?.[0]?.content?.parts?.[0]?.text||'Javob olishda xato';
+    if(mode==='cmd'&&rep.trim().startsWith('{'))runCmd(rep.trim());
+    else addMsg('ai',rep);
+    document.getElementById('stat').textContent='';
+  }catch(e){document.getElementById('stat').textContent='❌ Internet xatosi';}
+}
+
+function send(){sendMsg();}
+
+function speak(t){
+  if(!('speechSynthesis' in window))return;
+  const u=new SpeechSynthesisUtterance(t);
+  u.lang=langs[mode]||'uz-UZ';u.rate=0.9;
+  window.speechSynthesis.speak(u);
+}
+
+function toggleVoice(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert('Safari da ishlaydi');return;}
+  if(lis){rec&&rec.stop();return;}
+  rec=new SR();
+  rec.lang=langs[mode]||'uz-UZ';
+  rec.onstart=()=>{lis=true;document.getElementById('vbtn').classList.add('lis');document.getElementById('vbtn').textContent='⏹';document.getElementById('stat').textContent='🎤 Gapiring...';};
+  rec.onresult=e=>{const t=Array.from(e.results).map(x=>x[0].transcript).join('');document.getElementById('inp').value=t;if(e.results[e.results.length-1].isFinal){rec.stop();setTimeout(()=>sendMsg(t),300);}};
+  rec.onerror=()=>{lis=false;document.getElementById('vbtn').classList.remove('lis');document.getElementById('vbtn').textContent='🎤';};
+  rec.onend=()=>{lis=false;document.getElementById('vbtn').classList.remove('lis');document.getElementById('vbtn').textContent='🎤';if(document.getElementById('stat').textContent==='🎤 Gapiring...')document.getElementById('stat').textContent='';};
+  rec.start();
+}
+
+setMode('chat',document.querySelector('.tab.on'));
+</script></body></html>
