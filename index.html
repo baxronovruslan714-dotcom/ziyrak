@@ -12,23 +12,24 @@
 <div id="inp-area"><div id="stat"></div><div class="row"><button id="vbtn" onclick="toggleVoice()">🎤</button><input id="inp" placeholder="Yozing..." onkeydown="if(event.key==='Enter')send()"><button id="sbtn" onclick="send()">↑</button></div></div>
 <script>
 const KEY="AIzaSyDWXqN9eoqhUhor0Ek4SuLTbBy6wTmA898";
+const PROXY="https://corsproxy.io/?";
+const API=`${PROXY}https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
 const MODES={
   chat:{e:"🤖",s:"Sen Ziyrak — aqlli o'zbek AI assistanti. Qisqa va do'stona javob ber."},
-  jaydari:{e:"😂",s:"Sen hazilkash jaydari o'zbek yigitisan. 'Bro','aka','ukam' de, ko'p hazil qil, 'voy-bo'y','iye' ishlatib gapir. Savollarga ham javob ber."},
-  english:{e:"🇬🇧",s:"You are a friendly English teacher for Uzbek speakers. Translate to English, explain grammar, teach vocabulary. Mix Uzbek and English."},
-  russian:{e:"🇷🇺",s:"Siz rus tili o'qituvchisisiz. O'zbekchani ruschaga tarjima qiling, grammatika tushuntiring. Ikki tilni aralashtiring."},
-  arabic:{e:"🇸🇦",s:"Siz arab tili o'qituvchisisiz. Arab alifbosi, asosiy so'zlar o'rgating. O'zbek tilida tushuntirib arab yozuvini ko'rsating."},
+  jaydari:{e:"😂",s:"Sen hazilkash jaydari o'zbek yigitisan. 'Bro','aka','ukam' de, ko'p hazil qil, 'voy-bo'y','iye' ishlatib gapir."},
+  english:{e:"🇬🇧",s:"You are a friendly English teacher for Uzbek speakers. Translate to English, explain grammar, teach vocabulary."},
+  russian:{e:"🇷🇺",s:"Siz rus tili o'qituvchisisiz. O'zbekchani ruschaga tarjima qiling, grammatika tushuntiring."},
+  arabic:{e:"🇸🇦",s:"Siz arab tili o'qituvchisisiz. Arab alifbosi va asosiy so'zlar o'rgating."},
   cmd:{e:"⚡",s:`Buyruqlar uchun FAQAT JSON qaytar:
-"YouTube dan X top"→{"action":"youtube","q":"X"}
-"Instagram och"→{"action":"instagram"}
-"Telegram och"→{"action":"telegram"}
-"Google Maps da X"→{"action":"maps","q":"X"}
-"Google da X"→{"action":"google","q":"X"}
+"YouTube dan X top"->{"action":"youtube","q":"X"}
+"Instagram och"->{"action":"instagram"}
+"Telegram och"->{"action":"telegram"}
+"Google Maps da X"->{"action":"maps","q":"X"}
+"Google da X"->{"action":"google","q":"X"}
 Boshqa savollarga o'zbekcha javob ber.`}
 };
 let mode="chat",lis=false,rec=null;
 const langs={english:"en-US",russian:"ru-RU",arabic:"ar-SA"};
-
 function setMode(m,btn){
   mode=m;
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
@@ -45,29 +46,24 @@ function setMode(m,btn){
     </div>`;
   }
 }
-
 function clearChat(){document.getElementById('msgs').innerHTML='';}
-
 function addMsg(r,t){
   const c=document.getElementById('msgs');
-  const chips=c.querySelector('.chips');
-  if(chips)chips.remove();
+  const chips=c.querySelector('.chips');if(chips)chips.remove();
   const d=document.createElement('div');
   d.className='msg '+(r==='user'?'u':'a');
-  d.innerHTML=`<div class="av">${r==='user'?'😊':MODES[mode].e}</div><div class="bub">${t.replace(/\n/g,'<br>').replace(/&/g,'&amp;')}</div>`;
+  d.innerHTML=`<div class="av">${r==='user'?'😊':MODES[mode].e}</div><div class="bub">${t.replace(/\n/g,'<br>')}</div>`;
   c.appendChild(d);c.scrollTop=c.scrollHeight;
 }
-
 function runCmd(json){
   try{
     const j=JSON.parse(json);
     const u={youtube:`https://youtube.com/results?search_query=${encodeURIComponent(j.q||'')}`,instagram:'https://instagram.com',telegram:'https://t.me',maps:`https://maps.google.com/?q=${encodeURIComponent(j.q||'')}`,google:`https://google.com/search?q=${encodeURIComponent(j.q||'')}`};
-    const l={youtube:`🎵 YouTube ochildi: "${j.q}"`,instagram:'📸 Instagram ochildi!',telegram:'✈️ Telegram ochildi!',maps:`🗺 Maps ochildi: "${j.q}"`,google:`🔍 Google: "${j.q}"`};
+    const l={youtube:`🎵 YouTube ochildi!`,instagram:'📸 Instagram ochildi!',telegram:'✈️ Telegram ochildi!',maps:`🗺 Maps ochildi!`,google:`🔍 Google ochildi!`};
     if(u[j.action]){window.open(u[j.action],'_blank');addMsg('ai',l[j.action]||'✅ Bajarildi!');}
     else addMsg('ai',json);
   }catch(e){addMsg('ai',json);}
 }
-
 async function sendMsg(txt){
   const i=document.getElementById('inp');
   const t=txt||i.value.trim();
@@ -76,28 +72,19 @@ async function sendMsg(txt){
   addMsg('user',t);
   document.getElementById('stat').textContent='⏳ Javob tayyorlanmoqda...';
   try{
-    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`,{
+    const r=await fetch(API,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','x-requested-with':'XMLHttpRequest'},
       body:JSON.stringify({contents:[{role:'user',parts:[{text:MODES[mode].s+'\n\nFoydalanuvchi: '+t}]}]})
     });
     const d=await r.json();
-    const rep=d.candidates?.[0]?.content?.parts?.[0]?.text||'Javob olishda xato';
+    const rep=d.candidates?.[0]?.content?.parts?.[0]?.text||'Javob kelmadi';
     if(mode==='cmd'&&rep.trim().startsWith('{'))runCmd(rep.trim());
     else addMsg('ai',rep);
     document.getElementById('stat').textContent='';
-  }catch(e){document.getElementById('stat').textContent='❌ Internet xatosi';}
+  }catch(e){document.getElementById('stat').textContent='❌ '+e.message;}
 }
-
 function send(){sendMsg();}
-
-function speak(t){
-  if(!('speechSynthesis' in window))return;
-  const u=new SpeechSynthesisUtterance(t);
-  u.lang=langs[mode]||'uz-UZ';u.rate=0.9;
-  window.speechSynthesis.speak(u);
-}
-
 function toggleVoice(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){alert('Safari da ishlaydi');return;}
@@ -110,6 +97,5 @@ function toggleVoice(){
   rec.onend=()=>{lis=false;document.getElementById('vbtn').classList.remove('lis');document.getElementById('vbtn').textContent='🎤';if(document.getElementById('stat').textContent==='🎤 Gapiring...')document.getElementById('stat').textContent='';};
   rec.start();
 }
-
 setMode('chat',document.querySelector('.tab.on'));
 </script></body></html>
