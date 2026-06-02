@@ -4,14 +4,14 @@
 <button class="tab on" onclick="setMode('chat',this)">💬 Suhbat</button>
 <button class="tab" onclick="setMode('jaydari',this)">😂 Jaydari</button>
 <button class="tab" onclick="setMode('english',this)">🇬🇧 Ingliz</button>
-<button class="tab" onclick="setMode('russian',this)">🇷 Rus</button>
+<button class="tab" onclick="setMode('russian',this)">🇷🇺 Rus</button>
 <button class="tab" onclick="setMode('arabic',this)">🇸🇦 Arab</button>
 <button class="tab" onclick="setMode('cmd',this)">⚡ Buyruq</button>
 </div>
 <div id="msgs"></div>
 <div id="inp-area"><div id="stat"></div><div class="row"><button id="vbtn" onclick="toggleVoice()">🎤</button><input id="inp" placeholder="Yozing..." onkeydown="if(event.key==='Enter')send()"><button id="sbtn" onclick="send()">↑</button></div></div>
 <script>
-const KEY="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";
+const WORKER="https://ziyrak.baxronovruslan714.workers.dev";
 const MODES={
   chat:{e:"🤖",s:"Sen Ziyrak — aqlli o'zbek AI assistanti. Qisqa va do'stona javob ber."},
   jaydari:{e:"😂",s:"Sen hazilkash jaydari o'zbek yigitisan. 'Bro','aka','ukam' de, ko'p hazil qil."},
@@ -38,4 +38,36 @@ function addMsg(r,t){
 function runCmd(json){
   try{
     const j=JSON.parse(json);
-    const u={youtube:`https://youtube.com/results?search_query=${encodeURIComponent(j.q||''
+    const u={youtube:`https://youtube.com/results?search_query=${encodeURIComponent(j.q||'')}`,instagram:'https://instagram.com',telegram:'https://t.me',maps:`https://maps.google.com/?q=${encodeURIComponent(j.q||'')}`,google:`https://google.com/search?q=${encodeURIComponent(j.q||'')}`};
+    if(u[j.action]){window.open(u[j.action],'_blank');addMsg('ai','✅ Bajarildi!');}else addMsg('ai',json);
+  }catch(e){addMsg('ai',json);}
+}
+async function sendMsg(txt){
+  const i=document.getElementById('inp');const t=txt||i.value.trim();if(!t)return;
+  i.value='';addMsg('user',t);document.getElementById('stat').textContent='⏳ Javob tayyorlanmoqda...';
+  try{
+    const r=await fetch(WORKER,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'llama-3.1-8b-instant',messages:[{role:'system',content:MODES[mode].s},{role:'user',content:t}]})
+    });
+    const d=await r.json();
+    const rep=d.choices?.[0]?.message?.content||'Javob kelmadi';
+    if(mode==='cmd'&&rep.trim().startsWith('{'))runCmd(rep.trim());
+    else addMsg('ai',rep);
+    document.getElementById('stat').textContent='';
+  }catch(e){document.getElementById('stat').textContent='❌ Xato: '+e.message;}
+}
+function send(){sendMsg();}
+function toggleVoice(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert('Safari da ishlaydi');return;}
+  if(lis){rec&&rec.stop();return;}
+  rec=new SR();rec.lang=langs[mode]||'uz-UZ';
+  rec.onstart=()=>{lis=true;document.getElementById('vbtn').classList.add('lis');document.getElementById('vbtn').textContent='⏹';document.getElementById('stat').textContent='🎤 Gapiring...';};
+  rec.onresult=e=>{const t=Array.from(e.results).map(x=>x[0].transcript).join('');document.getElementById('inp').value=t;if(e.results[e.results.length-1].isFinal){rec.stop();setTimeout(()=>sendMsg(t),300);}};
+  rec.onerror=()=>{lis=false;document.getElementById('vbtn').classList.remove('lis');document.getElementById('vbtn').textContent='🎤';};
+  rec.onend=()=>{lis=false;document.getElementById('vbtn').classList.remove('lis');document.getElementById('vbtn').textContent='🎤';if(document.getElementById('stat').textContent==='🎤 Gapiring...')document.getElementById('stat').textContent='';};
+  rec.start();
+}
+setMode('chat',document.querySelector('.tab.on'));
+</script></body></html>
